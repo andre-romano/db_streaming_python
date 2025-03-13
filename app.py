@@ -1,3 +1,6 @@
+
+from datetime import datetime
+
 from flask import Flask, request, render_template
 
 from db.db import executar_insert_delete_update, executar_select
@@ -10,12 +13,12 @@ app = Flask(__name__)
 ##################
 
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
     return render_template('index.jinja2')
 
 
-@app.route("/atualizar/video")
+@app.route("/atualizar/video", methods=['GET'])
 def tela_atualizar_video():
     # classificacoes dos videos ( formato [ (id, nome) ] )
     classificacoes = executar_select(
@@ -30,33 +33,38 @@ def tela_atualizar_video():
     registros = executar_select(
         db="streaming",
         consulta_sql="""
-            SELECT ano, titulo, sinopse, duracao, id_classificacao
+            SELECT id, ano, titulo, sinopse, duracao, id_classificacao
             FROM video 
             WHERE id = %s
         """,
         parametros=(
             # pegue os dados enviados pelo usuario
-            request.form.get('id'),
+            request.args.get('id'),
         )
     )
 
     if len(registros) <= 0:
         return "ERRO: Consulta de video falhou. Veja logs do Python para detalhes."
-    ano, titulo, sinopse, duracao, id_classificacao = registros[0]
+    id, ano, titulo, sinopse, duracao, id_classificacao = registros[0]
+
+    # converter duracao do formato HH:MM:SS para HH:MM
+    duracao_formatada = datetime.strptime(
+        str(duracao), "%H:%M:%S").strftime("%H:%M")
 
     return render_template(
         "atualizar/video.jinja2",
         api=f"/api/atualizar/video",
         classificacoes=classificacoes,
+        id=id,
         ano=ano,
         titulo=titulo,
         sinopse=sinopse,
-        duracao=duracao,
+        duracao=duracao_formatada,
         id_classificacao=id_classificacao,
     )
 
 
-@app.route("/cadastrar/video")
+@app.route("/cadastrar/video", methods=['GET'])
 def tela_cadastrar_video():
 
     # classificacoes dos videos ( formato [ (id, nome) ] )
@@ -75,7 +83,7 @@ def tela_cadastrar_video():
     )
 
 
-@app.route("/consultar/video")
+@app.route("/consultar/video", methods=['GET'])
 def tela_consultar_video():
     # conecta com o banco e executa o comando SQL
     registros = executar_select(
@@ -92,7 +100,7 @@ def tela_consultar_video():
 
     return render_template(
         f"consultar/video.jinja2",
-        api_atualizar="/api/atualizar/video",
+        api_atualizar="/atualizar/video",
         api_apagar="/api/apagar/video",
         cabecalho=cabecalho,
         dados=registros,
@@ -128,6 +136,13 @@ def api_cadastrar_video():
 
 @app.route('/api/atualizar/video', methods=['POST'])
 def api_atualizar_video():
+    print([request.form.get('ano'),
+           request.form.get('titulo'),
+           request.form.get('sinopse'),
+           request.form.get('duracao'),
+           request.form.get('id_classificacao'),
+           request.form.get('id'),])
+
     # conecta com o banco e executa o comando SQL
     qtd_linhas = executar_insert_delete_update(
         db="streaming",

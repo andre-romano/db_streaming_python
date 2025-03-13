@@ -13,6 +13,7 @@
 
 <form class="text-center" action="{{ api }}" method="post">
 
+    {{ macros.render_input("", "hidden", "id", id) }}
     {{ macros.render_input("Ano:", "number", "ano", ano) }}
     {{ macros.render_input("Titulo:", "text", "titulo", titulo) }}
     {{ macros.render_input("Sinopse:", "text", "sinopse", sinopse) }}

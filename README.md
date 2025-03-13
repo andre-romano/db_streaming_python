@@ -18,8 +18,9 @@ python.exe app.py
 ## O que fazer
 
 1) Importar o arquivo **db/streaming_modelo_fisico.sql** no PhpMyAdmin ( http://localhost/phpmyadmin )
-2) Executar o App Flask (veja o comando acima)
-3) Construir as telas para criar, atualizar, apagar e consultar (CRUD) cada tabela do DB
+2) Instalar dependências do Flask (veja comando acima)
+3) Executar o App Flask (veja o comando acima)
+4) Construir as telas para criar, atualizar, apagar e consultar (CRUD) cada tabela do DB
 
 ## Estrutura do projeto
 
@@ -28,8 +29,10 @@ python.exe app.py
 - **static/**: contem os arquivos .JPG, .CSS e .JS do site
 - **templates/**: contem os templates HTML que o Python irá preencher (arquivos .JINJA2)
   - **_base.jinja2**: Template da pagina inicial do site
-  - **_macros.jinja2**: Funcoes (macros) que o Python pode usar para criar as paginas HTML (usando o sistema Jinja2)
+  - **_macros.jinja2**: Funções (macros) que o Python pode usar para criar as paginas HTML (usando o sistema Jinja2)
   - **index.jinja2**: Pagina inicial do site
-  - **atualizar/**: contem as paginas para atualizar registros em cada tabela no DB
-  - **cadastrar/**: contem as paginas para cadastrar registros em cada tabela no DB
-  - **consultar/**: contem as paginas para consultar registros em cada tabela no DB
+  - **atualizar/**: contem as paginas para atualizar registros (*UPDATE*) em cada tabela no DB
+  - **cadastrar/**: contem as paginas para cadastrar registros (*INSERT*) em cada tabela no DB
+  - **consultar/**: contem as paginas para consultar registros (*SELECT*) em cada tabela no DB
+
+> **PS**: Para deletar registros (*DELETE*) nao precisamos de uma tela. Basta ter uma API e passar para ela as informações necessárias para encontrar o registro a ser deletado (ex: id, cpf, outra_chave_primaria, etc).

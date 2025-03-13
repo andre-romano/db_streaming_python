@@ -20,11 +20,12 @@ python.exe app.py
 1) Importar o arquivo **db/streaming_modelo_fisico.sql** no PhpMyAdmin ( http://localhost/phpmyadmin )
 2) Instalar dependências do Flask (veja comando acima)
 3) Executar o App Flask (veja o comando acima)
-4) Construir as telas para criar, atualizar, apagar e consultar (CRUD) cada tabela do DB
+4) Acessar o App no endereço http://localhost:5000
+5) Construir as telas no Flask para criar, atualizar, apagar e consultar (CRUD) cada tabela do DB
 
 ## Estrutura do projeto
 
-- **app.py**: Aplicativo Python que usa a biblioteca Flask para criar o site (endereço: http://127.0.0.1:5000 )
+- **app.py**: Aplicativo Python que usa a biblioteca Flask para criar o site
 - **db/**: contem o arquivo .SQL do banco de dados, e a biblioteca db.py para acesso ao sistema do MySQL no Python
 - **static/**: contem os arquivos .JPG, .CSS e .JS do site
 - **templates/**: contem os templates HTML que o Python irá preencher (arquivos .JINJA2)

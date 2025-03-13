@@ -1,0 +1,16 @@
+<!-- index.jinja2 -->
+{% extends "_base.jinja2" %}
+
+{% block nav_title %}STREAMING{% endblock %}
+{% block title %}STREAMING - Home Page{% endblock %}
+
+{% block content %}
+
+<h1>Estrutura do projeto</h1>
+<div>A pasta <b>templates/</b> contem as paginas HTML que o Python carrega.</div>
+<div>A pasta <b>static/</b> contem bibliotecas (CSS e JS) e imagens.</div>
+<div>A pasta <b>db/</b> contem o banco de dados .SQL e modelo do DB construido no BrModelo.</div>
+<div>O arquivo <b>app.py</b> contem o aplicativo Flask, que instrui quais templates o Python deve carregar quando o
+    usuario acessa o site.</div>
+
+{% endblock %}

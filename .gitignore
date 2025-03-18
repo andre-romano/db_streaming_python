@@ -1,0 +1,21 @@
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+
+venv/
+.env/
+*.venv
+
+*.log
+*.tmp
+.DS_Store  # Para macOS
+Thumbs.db  # Para Windows
+
+Pipfile
+Pipfile.lock
+poetry.lock
+
+.vscode/
+.idea/
+*.iml

@@ -5,6 +5,8 @@ from flask import Flask, request, render_template
 
 from db.db import executar_insert_delete_update, executar_select
 
+from utils.functions import get_env
+
 # Create a Flask application
 app = Flask(__name__)
 
@@ -25,7 +27,7 @@ def tela_atualizar_video():
         db="streaming",
         consulta_sql="""
                 SELECT id, nome
-                FROM classificacao
+                FROM Classificacao
             """
     )
 
@@ -34,7 +36,7 @@ def tela_atualizar_video():
         db="streaming",
         consulta_sql="""
             SELECT id, ano, titulo, sinopse, duracao, id_classificacao
-            FROM video 
+            FROM Video 
             WHERE id = %s
         """,
         parametros=(
@@ -72,7 +74,7 @@ def tela_cadastrar_video():
         db="streaming",
         consulta_sql="""
                 SELECT id, nome
-                FROM classificacao
+                FROM Classificacao
             """
     )
 
@@ -90,7 +92,7 @@ def tela_consultar_video():
         db="streaming",
         consulta_sql="""
             SELECT v.id, ano, titulo, sinopse, duracao, c.nome
-            FROM video v, classificacao c
+            FROM Video v, Classificacao c
             WHERE v.id_classificacao = c.id
         """
     )
@@ -117,7 +119,7 @@ def api_cadastrar_video():
     qtd_linhas = executar_insert_delete_update(
         db="streaming",
         consulta_sql="""
-            INSERT INTO  video (ano, titulo, sinopse, duracao, id_classificacao)
+            INSERT INTO  Video (ano, titulo, sinopse, duracao, id_classificacao)
             VALUES             (  %s,    %s,      %s   ,  %s     ,   %s  ) 
         """,
         parametros=(
@@ -147,7 +149,7 @@ def api_atualizar_video():
     qtd_linhas = executar_insert_delete_update(
         db="streaming",
         consulta_sql="""
-            UPDATE  video 
+            UPDATE  Video 
             SET ano = %s, titulo = %s, sinopse = %s, duracao = %s, id_classificacao = %s
             WHERE id = %s
         """,
@@ -172,7 +174,7 @@ def api_apagar_video():
     qtd_linhas = executar_insert_delete_update(
         db="streaming",
         consulta_sql="""
-            DELETE FROM video
+            DELETE FROM Video
             WHERE id = %s
         """,
         parametros=(
@@ -187,4 +189,4 @@ def api_apagar_video():
 
 # Run the Flask application
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=get_env('APP_DEBUG', False), port=get_env('APP_PORT', 5000),)

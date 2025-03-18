@@ -1,3 +1,5 @@
+from utils.functions import get_env
+
 import mysql.connector
 
 from mysql.connector import Error
@@ -16,10 +18,11 @@ def connect_to_database(db, callback: Callable[[PooledMySQLConnection | MySQLCon
     try:
         # Estabelece a conexão com o banco de dados
         connection = mysql.connector.connect(
-            host=host,  # Ex: 'localhost' ou o IP do servidor
-            user=user,  # Ex: 'root'
-            password=password,  # Senha do seu usuário
-            database=db,  # Nome do Banco de dados para se conectar
+            host=get_env('DB_HOST', 'localhost'),  # Ex: 'localhost' ou o IP do servidor
+            user=get_env('DB_USER', 'root'),  # Ex: 'root'
+            password=get_env('DB_PASS',''),  # Senha do seu usuário
+            database=get_env('DB_NAME','streaming'),  # Nome do Banco de dados para se conectar
+            port=get_env('DB_PORT','3306'),
         )
 
         if connection.is_connected():

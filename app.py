@@ -1,4 +1,6 @@
 
+import time
+
 from datetime import datetime
 
 from flask import Flask, request, render_template
@@ -13,21 +15,27 @@ app = Flask(__name__)
 ##################
 
 
+# Rota da tela inicial (pagina inicial / home page)
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index.jinja2')
+    # retorna a tela inicial do sistema
+    return render_template(
+        'index.jinja2',  # template a ser renderizado
+    )
 
 
+# Rota da tela de atualizar video (/atualizar/video)
 @app.route("/atualizar/video", methods=['GET'])
 def tela_atualizar_video():
-    # classificacoes dos videos ( formato [ (id, nome) ] )
+    # conecta com o banco e executa o comando SQL
     classificacoes = executar_select(
         db="streaming",
         consulta_sql="""
-                SELECT id, nome
-                FROM classificacao
-            """
+            SELECT id, nome
+            FROM classificacao
+        """
     )
+    # classificacoes tem o formato [ (id, nome), ... ]
 
     # conecta com o banco e executa o comando SQL
     registros = executar_select(
@@ -37,9 +45,10 @@ def tela_atualizar_video():
             FROM video 
             WHERE id = %s
         """,
+        # parametros a serem inseridos no lugar dos %s no SQL acima, em ordem
         parametros=(
-            # pegue os dados enviados pelo usuario
-            request.args.get('id'),
+            # request.args pega os dados enviados pelo usuario na tela de atualizacao
+            request.args.get('id') or "",
         )
     )
 
@@ -51,10 +60,13 @@ def tela_atualizar_video():
     duracao_formatada = datetime.strptime(
         str(duracao), "%H:%M:%S").strftime("%H:%M")
 
+    # retorna a tela de atualizar video com os dados preenchidos
     return render_template(
-        "atualizar/video.jinja2",
-        api=f"/api/atualizar/video",
-        classificacoes=classificacoes,
+        "atualizar/video.jinja2",  # template a ser renderizado
+        api="/api/atualizar/video",  # rota da API que fara o update (usada no formulario)
+        classificacoes=classificacoes,  # lista de classificacoes para o componente <select> do HTML5
+
+        # DADOS do video a ser atualizado
         id=id,
         ano=ano,
         titulo=titulo,
@@ -67,19 +79,21 @@ def tela_atualizar_video():
 @app.route("/cadastrar/video", methods=['GET'])
 def tela_cadastrar_video():
 
-    # classificacoes dos videos ( formato [ (id, nome) ] )
+    # conecta com o banco e executa o comando SQL
     classificacoes = executar_select(
         db="streaming",
         consulta_sql="""
-                SELECT id, nome
-                FROM classificacao
-            """
+            SELECT id, nome
+            FROM classificacao
+        """
     )
+    # classificacoes tem o formato [ (id, nome), ... ]
 
+    # retorna a tela de cadastrar video
     return render_template(
-        f"cadastrar/video.jinja2",
-        api=f"/api/cadastrar/video",
-        classificacoes=classificacoes,
+        "cadastrar/video.jinja2",  # template a ser renderizado
+        api="/api/cadastrar/video",  # rota da API que fara o insert (usada no formulario)
+        classificacoes=classificacoes,  # lista de classificacoes para o componente <select> do HTML5
     )
 
 
@@ -94,16 +108,17 @@ def tela_consultar_video():
             WHERE v.id_classificacao = c.id
         """
     )
+    # registros tem o formato [ (id, ano, titulo, sinopse, duracao, nome_classificacao), ... ]
 
     # cabecalho da tabela Video (ordem das colunas)
     cabecalho = ["ID", "Ano", "Titulo", "Sinopse", "Duracao", "Classificacao"]
 
     return render_template(
-        f"consultar/video.jinja2",
-        api_atualizar="/atualizar/video",
-        api_apagar="/api/apagar/video",
-        cabecalho=cabecalho,
-        dados=registros,
+        "consultar.jinja2",  # template a ser renderizado
+        api_atualizar="/atualizar/video",  # rota para a tela de atualizar (usada no botao de atualizar)
+        api_apagar="/api/apagar/video",  # rota para a API de apagar (usada no botao de apagar)
+        cabecalho=cabecalho,  # cabecalho da tabela (usado para renderizar o cabecalho dinamicamente)
+        dados=registros,  # dados a serem exibidos na tabela (usado para renderizar as linhas dinamicamente)
     )
 
 ################
@@ -113,78 +128,106 @@ def tela_consultar_video():
 
 @app.route('/api/cadastrar/video', methods=['POST'])
 def api_cadastrar_video():
+    print("Recebendo dados para cadastrar video:", request.form)
+
     # conecta com o banco e executa o comando SQL
-    qtd_linhas = executar_insert_delete_update(
+    qtd_linhas_inseridas = executar_insert_delete_update(
         db="streaming",
         consulta_sql="""
             INSERT INTO  video (ano, titulo, sinopse, duracao, id_classificacao)
             VALUES             (  %s,    %s,      %s   ,  %s     ,   %s  ) 
         """,
+        # parametros a serem inseridos no lugar dos %s no SQL acima, em ordem
         parametros=(
-            # pegue os dados enviados pelo usuario
-            request.form.get('ano'),
-            request.form.get('titulo'),
-            request.form.get('sinopse'),
-            request.form.get('duracao'),
-            request.form.get('id_classificacao'),
+            # request.form pega os dados enviados pelo usuario na tela de cadastro
+            request.form.get('ano') or "",
+            request.form.get('titulo') or "",
+            request.form.get('sinopse') or "",
+            request.form.get('duracao') or "",
+            request.form.get('id_classificacao') or "",
         )
     )
-    if qtd_linhas < 0:
+
+    # verifica se o insert falhou (qtd_linhas_inseridas < 0)
+    if qtd_linhas_inseridas < 0:
+        # mostra mensagem de erro se o insert falhar
         return "ERRO: Insercao mal feita. Veja os logs do Python para detalhes."
-    return f"SUCESSO: {qtd_linhas} videos inseridos no DB. Retorne para a pagina /consultar/video para ver o resultado."
+
+    # mostra mensagem de sucesso se o insert for bem sucedido
+    return f"SUCESSO: {qtd_linhas_inseridas} videos inseridos no DB. Retorne para a pagina /consultar/video para ver o resultado."
 
 
 @app.route('/api/atualizar/video', methods=['POST'])
 def api_atualizar_video():
-    print([request.form.get('ano'),
-           request.form.get('titulo'),
-           request.form.get('sinopse'),
-           request.form.get('duracao'),
-           request.form.get('id_classificacao'),
-           request.form.get('id'),])
+    print("Recebendo dados para atualizar video:", request.form)
 
     # conecta com o banco e executa o comando SQL
-    qtd_linhas = executar_insert_delete_update(
+    qtd_linhas_atualizadas = executar_insert_delete_update(
         db="streaming",
         consulta_sql="""
             UPDATE  video 
             SET ano = %s, titulo = %s, sinopse = %s, duracao = %s, id_classificacao = %s
             WHERE id = %s
         """,
+        # parametros a serem inseridos no lugar dos %s no SQL acima, em ordem
         parametros=(
-            # pegue os dados enviados pelo usuario
-            request.form.get('ano'),
-            request.form.get('titulo'),
-            request.form.get('sinopse'),
-            request.form.get('duracao'),
-            request.form.get('id_classificacao'),
-            request.form.get('id'),
+            # request.form pega os dados enviados pelo usuario na tela de atualizacao
+            request.form.get('ano') or "",
+            request.form.get('titulo') or "",
+            request.form.get('sinopse') or "",
+            request.form.get('duracao') or "",
+            request.form.get('id_classificacao') or "",
+            request.form.get('id') or "",
         )
     )
-    if qtd_linhas < 0:
+
+    # verifica se o update falhou (qtd_linhas_atualizadas < 0)
+    if qtd_linhas_atualizadas < 0:
+        # mostra mensagem de erro se o update falhar
         return "ERRO: Atualizacao mal feita. Veja os logs do Python para detalhes."
-    return f"SUCESSO: {qtd_linhas} videos atualizados no DB. Retorne para a pagina /consultar/video para ver o resultado."
+
+    # mostra mensagem de sucesso se o update for bem sucedido
+    return f"SUCESSO: {qtd_linhas_atualizadas} videos atualizados no DB. Retorne para a pagina /consultar/video para ver o resultado."
 
 
 @app.route('/api/apagar/video', methods=['POST'])
 def api_apagar_video():
+    print("Recebendo dados para apagar video:", request.form)
+
     # conecta com o banco e executa o comando SQL
-    qtd_linhas = executar_insert_delete_update(
+    qtd_linhas_apagadas = executar_insert_delete_update(
         db="streaming",
         consulta_sql="""
             DELETE FROM video
             WHERE id = %s
         """,
+        # parametros a serem inseridos no lugar dos %s no SQL acima, em ordem
         parametros=(
-            # pegue os dados enviados pelo usuario
-            request.form.get('id'),
+            # request.form pega os dados enviados pelo usuario na tela de atualizacao
+            request.form.get('id') or "",
         )
     )
-    if qtd_linhas < 0:
+
+    # verifica se o delete falhou (qtd_linhas_apagadas < 0)
+    if qtd_linhas_apagadas < 0:
+        # mostra mensagem de erro se o delete falhar
         return "ERRO: Delete mal feito. Veja os logs do Python para detalhes."
-    return f"SUCESSO: {qtd_linhas} videos deletados no DB. Retorne para a pagina /consultar/video para ver o resultado."
+
+    # mostra mensagem de sucesso se o delete for bem sucedido
+    return f"SUCESSO: {qtd_linhas_apagadas} videos deletados no DB. Retorne para a pagina /consultar/video para ver o resultado."
 
 
-# Run the Flask application
+# Inicia o servidor Flask (NAO ALTERE OU REMOVA O CODIGO ABAIXO)
 if __name__ == '__main__':
-    app.run(debug=True)
+    while True:
+        try:
+            print("Iniciando servidor Flask...")
+            print("Pressione Ctrl+C para encerrar o servidor.")
+            app.run(debug=True)
+            raise KeyboardInterrupt()  # Encerra servidor
+        except KeyboardInterrupt:
+            print("Servidor Flask encerrado pelo usuário.")
+            break  # Sai do loop se o servidor for encerrado normalmente
+        except Exception as e:
+            print(f"Erro no servidor Flask: {e}")
+            time.sleep(0.500)  # Aguarde um pouco antes de tentar reiniciar o servidor

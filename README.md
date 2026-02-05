@@ -4,7 +4,7 @@
 No terminal execute o seguinte comando:
 
 ```batch
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ## Executar app Flask

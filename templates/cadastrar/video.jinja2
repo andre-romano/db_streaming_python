@@ -12,10 +12,15 @@
 </h2>
 
 <form class="text-center" action="{{ api }}" method="post">
+    <!-- Renderize os campos de entrada usando os macros (veja arquivo templates/_macros.jinja2) -->
+
+    <!-- render_input(label, tipo, nome, valor_pre_preenchido) -->
     {{ macros.render_input("Ano:", "number", "ano", "") }}
     {{ macros.render_input("Titulo:", "text", "titulo", "") }}
     {{ macros.render_input("Sinopse:", "text", "sinopse", "") }}
     {{ macros.render_input("Duracao:", "time", "duracao", "") }}
+
+    <!-- render_select(label, nome, opcoes, valor_pre_preenchido) -->
     {{ macros.render_select("Classificacao:", "id_classificacao", classificacoes, "") }}
 
     <button type="submit" class="btn btn-primary">Cadastrar</button>

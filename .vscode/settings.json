@@ -1,0 +1,47 @@
+{
+    "cSpell.enabled": false,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.autopep8",
+    },
+    "python.analysis.autoFormatStrings": true,
+    "python.analysis.userFileIndexingLimit": -1,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.typeCheckingMode": "basic",
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit"
+    },
+    "python.analysis.fixAll": [
+        "source.unusedImports",
+        // "source.convertImportFormat",
+        // "source.convertImportStar",
+        // "source.addTypeAnnotation",
+    ],
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportConstantRedefinition": "error",
+        "reportMissingSuperCall": "error",
+        "reportPrivateUsage": "error",
+        "reportPropertyTypeMismatch": "error",
+        "reportImportCycles": "error",
+        "reportDuplicateImport": "warning",
+        "reportUnusedClass": "warning",
+        "reportUnusedFunction": "warning",
+        "reportDeprecated": "warning",
+        "reportUninitializedInstanceVariable": "warning",
+        "reportUntypedFunctionDecorator": "warning",
+        "reportUntypedClassDecorator": "warning",
+        "reportUntypedBaseClass": "warning",
+        "reportUnknownMemberType": "warning",
+        "reportUnknownVariableType": "warning",
+        "reportUnknownArgumentType": "warning",
+        "reportUnknownLambdaType": "warning",
+        "reportUnknownParameterType": "warning",
+        "reportMissingParameterType": "warning",
+        "reportUnreachable": "warning",
+        "reportPossiblyUnboundVariable": "warning",
+        "reportImplicitOverride": "warning",
+        "reportIncompatibleVariableOverride": "warning",
+        "reportIncompatibleMethodOverride": "warning",
+        "reportOverlappingOverload": "warning",
+    }
+}
